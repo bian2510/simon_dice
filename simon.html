@@ -1,0 +1,134 @@
+<html>
+  <head>
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    <title>Simon Dice</title>
+    <link href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet">
+    <link rel="stylesheet" href="simon.css">
+  </head>
+  <body>
+    <div class="keyboard">
+<div class="row">
+        <div class="key" data-key= "81">q</div>
+        <div class="key" data-key= "87">w</div>
+        <div class="key" data-key= "69">e</div>
+        <div class="key" data-key= "82">r</div>
+        <div class="key" data-key= "84">t</div>
+        <div class="key" data-key= "89">y</div>
+        <div class="key" data-key= "85">u</div>
+        <div class="key" data-key= "73">i</div>
+        <div class="key" data-key= "79">o</div>
+        <div class="key" data-key= "80">p</div>
+      </div>
+      <div class="row">
+        <div class="key" data-key= "65">a</div>
+        <div class="key" data-key= "83">s</div>
+        <div class="key" data-key= "68">d</div>
+        <div class="key" data-key= "70">f</div>
+        <div class="key" data-key= "71">g</div>
+        <div class="key" data-key= "72">h</div>
+        <div class="key" data-key= "74">j</div>
+        <div class="key" data-key= "75">k</div>
+        <div class="key" data-key= "76">l</div>
+      </div>
+      <div class="row last">
+        <div class="key" data-key= "90">z</div>
+        <div class="key" data-key= "88">x</div>
+        <div class="key" data-key= "67">c</div>
+        <div class="key" data-key= "86">v</div>
+        <div class="key" data-key= "66">b</div>
+        <div class="key" data-key= "78">n</div>
+        <div class="key" data-key= "77">m</div>
+      </div>    </div>
+    <script>
+
+      const levels = 1
+
+      let keys = generateKeys(levels)
+
+      function nextRound(level){
+        if (level > levels) {
+          return swal({
+                title: 'Ganaste ¿Desas volver a jugar?',
+                buttons: {
+                confirm: "Si",
+                cancel: "No"  
+                }
+                })
+                .then((ok) =>{
+                      if (ok) {
+                      keys = generateKeys(levels)
+                      nextRound(1)
+                      }
+              })
+        }
+        swal(`Nivel: ${level}`,{timer: 1000,button: false})
+        for (let i = 0; i < level; i++){ 
+          setTimeout(() => activate(keys[i]),1000 * ( i+1) + 1000)
+        }
+        let i = 0
+        let keyActual = keys[i]
+        window.addEventListener('keydown',onKeyDown)
+
+        function onKeyDown(event){
+          if (event.keyCode == keyActual) {
+            activate(keyActual, {success: true})
+            i++
+            if (i == level) {
+              i++
+              window.removeEventListener('keydown',onKeyDown)
+              setTimeout(()=>nextRound(i),1500)
+            }
+            keyActual = keys[i]
+          } else {
+            activate(keyActual, {fail: true})
+            window.removeEventListener('keydown',onKeyDown)
+            swal({
+                title: 'Perdiste ¿Desas volver a jugar?',
+                buttons: {
+                confirm: "Si",
+                cancel: "No"  
+                }
+                })
+                .then((ok) =>{
+                      if (ok) {
+                      keys = generateKeys(levels)
+                      nextRound(1)
+                      }
+              })
+          }
+        }
+      }
+
+      nextRound(1)
+
+      function generateKeys(levels){
+        return new Array(levels).fill(0).map(generateKey)
+      }
+
+      function generateKey(){
+        const min = 65
+        const max = 90
+        return Math.round(Math.random()*(max-min)+min)
+
+      }
+
+      function getElementByKeyCode(key) {
+        return document.querySelector(`[data-key="${key}"]`)// body...
+      }
+      function activate(key, opts = {}){
+        const el = getElementByKeyCode(key)
+        el.classList.add('active')
+        if (opts.success) {
+          el.classList.add('success')
+        } else if (opts.fail) {
+          el.classList.add('fail')
+        }
+        setTimeout(() => deactive(el), 500);
+      }
+      function deactive(el) {
+        el.className = 'key'
+      }
+      // Aquí tu código
+    </script>
+  </body>
+</html>
